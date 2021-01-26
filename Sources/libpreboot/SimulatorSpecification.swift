@@ -15,7 +15,7 @@
  language governing rights and limitations under the RPL.
  */
 struct SimulatorSpecification {
-    let deviceIdentifier: String
-    let runtimeIdentifier: String
+    let deviceType: String
+    let runtime: String
     
 }

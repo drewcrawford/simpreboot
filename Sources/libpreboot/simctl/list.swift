@@ -14,7 +14,7 @@
  PURPOSE, QUIET ENJOYMENT, OR NON-INFRINGEMENT. See the RPL for specific
  language governing rights and limitations under the RPL.
  */
-
+import Foundation
 
 extension Simctl {
     /** Extracts a section starting with `== Devices ==`*/
@@ -35,10 +35,22 @@ extension Simctl {
         }
         return section
     }
-    static func parse(listResponse: String) {
+    private static func parse(line: String) -> String {
+        var pattern = #"\s*"# //trim whitespace
+        pattern.append(#"(.+?(?=\s*\())"#) //look for name.  Stop before first (
+        //pattern.append(#""#)
+        let regex = try! NSRegularExpression(pattern: pattern, options: NSRegularExpression.Options())
+        let result = regex.firstResult(in: line)!
+        for (r,result) in result.enumerated() {
+            logger.debug("group \(r) '\(result)'")
+        }
+        return String(result[1]) //device type
+    }
+    static func parse(listResponse: String) -> [SimulatorSpecification] {
         let deviceSection = extractDeviceSection(listResponse: listResponse)
         var currentRuntime: Substring? = nil
         
+        var specs: [SimulatorSpecification] = []
         for line in deviceSection {
             if line.starts(with: "-- "), line.hasSuffix(" --") {
                 let h = line.index(line.startIndex, offsetBy: 3)
@@ -46,8 +58,11 @@ extension Simctl {
                 currentRuntime = line[h..<t]
             }
             else {
-                print("[\(currentRuntime!)] \(line)")
+                let deviceName = parse(line: line)
+                let spec = SimulatorSpecification(deviceType: deviceName, runtime: String(currentRuntime!))
+                specs.append(spec)
             }
         }
+        return specs
     }
 }
