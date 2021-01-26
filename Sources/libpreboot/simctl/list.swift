@@ -16,59 +16,35 @@
  */
 import Foundation
 
+private struct ListCommand: Decodable {
+    struct Device: Decodable {
+        let name: String
+        let deviceTypeIdentifier: String
+
+    }
+    let devices: [String: [Device]]
+}
+
 extension Simctl {
-    /** Extracts a section starting with `== Devices ==`*/
-    private static func extractDeviceSection(listResponse: String) -> [String] {
-        let lines = listResponse.split(separator: "\n")
-        var section: [String] = []
-        var inSection = false
-        for line in lines {
-            if !inSection && line == "== Devices ==" {
-                inSection = true
-            }
-            else if inSection && line.starts(with: "==") {
-                inSection = false
-            }
-            else if inSection {
-                section.append(String(line))
+   
+    static func parse(listResponse: String) throws -> [SimulatorSpecification] {
+        let decoder = JSONDecoder()
+        guard let data = listResponse.data(using: .utf8) else {
+            throw Errors.cantDecodeString
+        }
+        let command = try decoder.decode(ListCommand.self, from: data)
+        var specifications: [SimulatorSpecification] = []
+        for (runtime,devices) in command.devices {
+            for device in devices {
+                specifications.append(SimulatorSpecification(deviceType: device.deviceTypeIdentifier, runtime: runtime))
             }
         }
-        return section
-    }
-    private static func parse(line: String) -> String {
-        var pattern = #"\s*"# //trim whitespace
-        pattern.append(#"(.+?(?=\s*\())"#) //look for name.  Stop before first (
-        //pattern.append(#""#)
-        let regex = try! NSRegularExpression(pattern: pattern, options: NSRegularExpression.Options())
-        let result = regex.firstResult(in: line)!
-        for (r,result) in result.enumerated() {
-            logger.debug("group \(r) '\(result)'")
-        }
-        return String(result[1]) //device type
-    }
-    static func parse(listResponse: String) -> [SimulatorSpecification] {
-        let deviceSection = extractDeviceSection(listResponse: listResponse)
-        var currentRuntime: Substring? = nil
-        
-        var specs: [SimulatorSpecification] = []
-        for line in deviceSection {
-            if line.starts(with: "-- "), line.hasSuffix(" --") {
-                let h = line.index(line.startIndex, offsetBy: 3)
-                let t = line.index(line.endIndex, offsetBy: -3)
-                currentRuntime = line[h..<t]
-            }
-            else {
-                let deviceName = parse(line: line)
-                let spec = SimulatorSpecification(deviceType: deviceName, runtime: String(currentRuntime!))
-                specs.append(spec)
-            }
-        }
-        return specs
+        return specifications
     }
     
     func list() throws -> [SimulatorSpecification] {
-        let output = try execute(arguments: ["list"])
-        return Simctl.parse(listResponse: output)
+        let output = try execute(arguments: ["list","-j"])
+        return try Simctl.parse(listResponse: output)
     }
 }
 

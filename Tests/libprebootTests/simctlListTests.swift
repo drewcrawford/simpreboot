@@ -18,9 +18,9 @@
 import XCTest
 @testable import libpreboot
 final class SimctlListTests: XCTestCase {
-    func testListParse() {
-        let devices = Simctl.parse(listResponse: simctlListOutput)
-        XCTAssert(devices.contains(where: {$0.deviceType == "iPhone 8"}))
+    func testListParse() throws {
+        let devices = try Simctl.parse(listResponse: simCtlList)
+        XCTAssert(devices.contains(where: {$0.deviceType == "com.apple.CoreSimulator.SimDeviceType.iPhone-12"}))
         XCTAssertEqual(devices.count,121)
     }
     func testLiveList() throws {

@@ -19,7 +19,7 @@ import os.log
 
 struct Simctl {
     private let simctl: URL
-    private enum Errors: Error {
+    enum Errors: Error {
         case noDataToRead
         case cantDecodeString
     }
@@ -28,19 +28,22 @@ struct Simctl {
         var err: Error? = nil
         let sema = DispatchSemaphore(value: 0)
         let stdout = Pipe()
+        let stderr = Pipe()
         task.standardOutput = stdout.fileHandleForWriting
+        task.standardError = stderr.fileHandleForWriting
         task.execute(withArguments: arguments, completionHandler: .some({ (error) in
             if let error = error {
                 err = error
             }
             sema.signal()
         }))
+
+        let _data = try stdout.fileHandleForReading.readToEnd()
+        guard let data = _data else { throw Errors.noDataToRead }
         sema.wait()
         if let error = err {
             throw error
         }
-        let _data = try stdout.fileHandleForReading.readToEnd()
-        guard let data = _data else { throw Errors.noDataToRead }
         guard let string = String(data: data, encoding: .utf8) else { throw Errors.cantDecodeString }
         return string
     }
