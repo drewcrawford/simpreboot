@@ -22,4 +22,12 @@ extension Simctl {
         let result = try execute(arguments: ["create",name,deviceType.rawValue, runtimeIdentifier.rawValue])
         return DeviceIdentifier(result!.trimmingCharacters(in: .whitespacesAndNewlines))
     }
+    func createIfNeeded(request: PrebootRequest, deviceMapper: DeviceMapper) throws -> PrebootRequestCreated {
+        var results = deviceMapper.partiallyResolve(request: request)
+        while results.count < request.count {
+            let newDevice = try create(name: "simpreboot", deviceType: request.deviceType, runtimeIdentifier: request.runtime)
+            results.append(newDevice)
+        }
+        return PrebootRequestCreated(devices: results)
+    }
 }

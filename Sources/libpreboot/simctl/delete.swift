@@ -19,4 +19,16 @@ extension Simctl {
     func delete(deviceIdentifier: DeviceIdentifier) throws {
         let _ = try execute(arguments: ["delete",deviceIdentifier.rawValue])
     }
+    
+    func deleteAll(named: String) throws {
+        while true {
+            do {
+                let _ = try execute(arguments: ["delete",named])
+            }
+            catch Simctl.Errors.returnCode(148) { //no such device
+                break
+            }
+            
+        }
+    }
 }

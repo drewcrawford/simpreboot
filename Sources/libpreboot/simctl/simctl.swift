@@ -22,28 +22,25 @@ struct Simctl {
     enum Errors: Error {
         case noDataToRead
         case cantDecodeString
+        case returnCode(Int)
     }
     func execute(arguments: [String]) throws -> String? {
-        let task = try NSUserUnixTask(url: simctl)
-        var err: Error? = nil
-        let sema = DispatchSemaphore(value: 0)
+        let process = Process()
+        process.arguments = arguments
+        process.executableURL = simctl
         let stdout = Pipe()
-        let stderr = Pipe()
-        task.standardOutput = stdout.fileHandleForWriting
-        task.standardError = stderr.fileHandleForWriting
-        task.execute(withArguments: arguments, completionHandler: .some({ (error) in
-            if let error = error {
-                err = error
-            }
-            sema.signal()
-        }))
+        process.standardOutput = stdout
+        
+        try process.run()
+        
 
         let _data = try stdout.fileHandleForReading.readToEnd()
-        guard let data = _data else { return nil }
-        sema.wait()
-        if let error = err {
-            throw error
+        process.waitUntilExit()
+        if process.terminationStatus != 0 {
+            throw Errors.returnCode(Int(process.terminationStatus))
         }
+        guard let data = _data else { return nil }
+
         guard let string = String(data: data, encoding: .utf8) else { throw Errors.cantDecodeString }
         return string
     }

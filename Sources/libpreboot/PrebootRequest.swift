@@ -24,3 +24,10 @@ struct PrebootRequest {
     let deviceType: DeviceTypeIdentifier
     let runtime: RuntimeIdentifier
 }
+
+/**
+ Device(s) we may need to boot
+ */
+struct PrebootRequestCreated {
+    let devices: [DeviceIdentifier]
+}
