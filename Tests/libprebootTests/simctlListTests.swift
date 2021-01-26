@@ -19,14 +19,14 @@ import XCTest
 @testable import libpreboot
 final class SimctlListTests: XCTestCase {
     func testListParse() throws {
-        let devices = try Simctl.parse(listResponse: simCtlList)
-        XCTAssert(devices.contains(where: {$0.deviceType == "com.apple.CoreSimulator.SimDeviceType.iPhone-12"}))
-        XCTAssertEqual(devices.count,121)
+        let devices = try DeviceMapper(listResponse: simCtlList)
+        XCTAssert(devices.specifications.contains(where: {$0.deviceType.rawValue == "com.apple.CoreSimulator.SimDeviceType.iPhone-12"}))
+        XCTAssertEqual(devices.specifications.count,121)
     }
     func testLiveList() throws {
         let simctl = try Simctl()
         let results = try simctl.list()
-        XCTAssert(results.count > 0)
+        XCTAssert(results.deviceMapper.specifications.count > 0)
     }
     
     func testDeviceTypeMapper() throws {

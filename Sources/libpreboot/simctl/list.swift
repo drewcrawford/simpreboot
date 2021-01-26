@@ -18,11 +18,11 @@ import Foundation
 
 private struct ListCommandDevices: Decodable {
     struct Device: Decodable {
-        let name: String
-        let deviceTypeIdentifier: String
+        let name: DeviceShortName
+        let deviceTypeIdentifier: DeviceTypeIdentifier
 
     }
-    let devices: [String: [Device]]
+    let devices: [String: [Device]] //in order to make json happy, this needs to be indexed by String, not RuntimeIdentifier
 }
 
 struct DeviceTypeIdentifier: Decodable, Hashable {
@@ -132,26 +132,45 @@ struct RuntimeMapper {
     }
 }
 
-extension Simctl {
-   
-    static func parse(listResponse: String) throws -> [SimulatorSpecification] {
+struct SimulatorSpecification {
+    let deviceType: DeviceTypeIdentifier
+    let runtime: RuntimeIdentifier
+}
+
+struct DeviceMapper {
+    let specifications: [SimulatorSpecification]
+    init(listResponse: String) throws {
         let decoder = JSONDecoder()
         guard let data = listResponse.data(using: .utf8) else {
-            throw Errors.cantDecodeString
+            throw Simctl.Errors.cantDecodeString
         }
-        let command = try decoder.decode(ListCommandDevices.self, from: data)
-        var specifications: [SimulatorSpecification] = []
+        let command = try! decoder.decode(ListCommandDevices.self, from: data)
+        var _specifications: [SimulatorSpecification] = []
         for (runtime,devices) in command.devices {
             for device in devices {
-                specifications.append(SimulatorSpecification(deviceType: device.deviceTypeIdentifier, runtime: runtime))
+                _specifications.append(SimulatorSpecification(deviceType: device.deviceTypeIdentifier, runtime: RuntimeIdentifier(runtime)))
             }
         }
-        return specifications
+        specifications = _specifications
+    }
+}
+
+extension Simctl {
+    
+    struct ListMappers {
+        let deviceMapper: DeviceMapper
+        let deviceTypeMapper: DeviceTypeMapper
+        let runtimeMapper: RuntimeMapper
+        init(listResponse: String) throws {
+            deviceMapper = try DeviceMapper(listResponse: listResponse)
+            deviceTypeMapper = try DeviceTypeMapper(listResponse: listResponse)
+            runtimeMapper = try RuntimeMapper(listResponse: listResponse)
+        }
     }
     
-    func list() throws -> [SimulatorSpecification] {
+    func list() throws -> ListMappers {
         let output = try execute(arguments: ["list","-j"])
-        return try Simctl.parse(listResponse: output)
+        return try ListMappers(listResponse: output)
     }
 }
 
