@@ -16,13 +16,60 @@
  */
 import Foundation
 
-private struct ListCommand: Decodable {
+private struct ListCommandDevices: Decodable {
     struct Device: Decodable {
         let name: String
         let deviceTypeIdentifier: String
 
     }
     let devices: [String: [Device]]
+}
+
+struct DeviceTypeIdentifier: Decodable, Hashable {
+    let rawValue: String
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        rawValue = try container.decode(String.self)
+    }
+}
+struct DeviceShortName: Decodable, Hashable {
+    let rawValue: String
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        rawValue = try container.decode(String.self)
+    }
+    init(_ string: String) {
+        self.rawValue = string
+    }
+}
+
+private struct ListCommandDeviceTypes: Decodable {
+    struct DeviceType: Decodable {
+        let name: DeviceShortName
+        let identifier: DeviceTypeIdentifier
+    }
+    let devicetypes: [DeviceType]
+}
+
+/**Maps between device type names and identifiers */
+struct DeviceTypeMapper {
+    private let maps: [DeviceShortName: DeviceTypeIdentifier]
+    init(listResponse: String) throws {
+        guard let data = listResponse.data(using: .utf8) else {
+            throw Simctl.Errors.cantDecodeString
+        }
+        
+        let decoder = JSONDecoder()
+        let command = try decoder.decode(ListCommandDeviceTypes.self, from: data)
+        var _maps: [DeviceShortName: DeviceTypeIdentifier] = [:]
+        for device in command.devicetypes {
+            _maps[device.name] = device.identifier
+        }
+        maps = _maps
+    }
+    subscript(name: DeviceShortName) -> DeviceTypeIdentifier {
+        return maps[name]!
+    }
 }
 
 extension Simctl {
@@ -32,7 +79,7 @@ extension Simctl {
         guard let data = listResponse.data(using: .utf8) else {
             throw Errors.cantDecodeString
         }
-        let command = try decoder.decode(ListCommand.self, from: data)
+        let command = try decoder.decode(ListCommandDevices.self, from: data)
         var specifications: [SimulatorSpecification] = []
         for (runtime,devices) in command.devices {
             for device in devices {

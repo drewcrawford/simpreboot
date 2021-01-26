@@ -28,4 +28,9 @@ final class SimctlListTests: XCTestCase {
         let results = try simctl.list()
         XCTAssert(results.count > 0)
     }
+    
+    func testDeviceTypeMapper() throws {
+        let mapper = try DeviceTypeMapper(listResponse: simCtlList)
+        XCTAssertEqual(mapper[DeviceShortName("iPhone 12")].rawValue,"com.apple.CoreSimulator.SimDeviceType.iPhone-12")
+    }
 }
