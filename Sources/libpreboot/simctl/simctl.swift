@@ -23,7 +23,7 @@ struct Simctl {
         case noDataToRead
         case cantDecodeString
     }
-    func execute(arguments: [String]) throws -> String {
+    func execute(arguments: [String]) throws -> String? {
         let task = try NSUserUnixTask(url: simctl)
         var err: Error? = nil
         let sema = DispatchSemaphore(value: 0)
@@ -39,7 +39,7 @@ struct Simctl {
         }))
 
         let _data = try stdout.fileHandleForReading.readToEnd()
-        guard let data = _data else { throw Errors.noDataToRead }
+        guard let data = _data else { return nil }
         sema.wait()
         if let error = err {
             throw error

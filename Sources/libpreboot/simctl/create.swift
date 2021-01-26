@@ -1,4 +1,4 @@
-//simctlTests: Tests for simctl
+//simctl/create.swift: `simctl create` implementation
 /*
  simpreboot © 2021 DrewCrawfordApps LLC
  Unless explicitly acquired and licensed from Licensor under another
@@ -15,18 +15,9 @@
  language governing rights and limitations under the RPL.
  */
 
-import XCTest
-import Foundation
-@testable import libpreboot
-final class SimctlTests: XCTestCase {
-    func testInvokeList() throws {
-        let s = Simctl(simctl: URL(fileURLWithPath: "/Applications/Xcode.app/Contents/Developer/usr/bin/simctl"))
-        let output = try s.execute(arguments: ["list"])!
-        print(output)
-    }
-    func testInvokeListAuto() throws {
-        let s = try Simctl()
-        let output = try s.execute(arguments: ["list"])!
-        print(output)
+extension Simctl {
+    func create(name: String, deviceType: DeviceTypeIdentifier, runtimeIdentifier: RuntimeIdentifier) throws -> DeviceIdentifier {
+        let result = try execute(arguments: ["create",name,deviceType.rawValue, runtimeIdentifier.rawValue])
+        return DeviceIdentifier(result!.trimmingCharacters(in: .whitespacesAndNewlines))
     }
 }

@@ -1,4 +1,4 @@
-//simctlTests: Tests for simctl
+//SimCtlCreateTests.swift: `simctl create` tests
 /*
  simpreboot © 2021 DrewCrawfordApps LLC
  Unless explicitly acquired and licensed from Licensor under another
@@ -16,17 +16,21 @@
  */
 
 import XCTest
-import Foundation
 @testable import libpreboot
-final class SimctlTests: XCTestCase {
-    func testInvokeList() throws {
-        let s = Simctl(simctl: URL(fileURLWithPath: "/Applications/Xcode.app/Contents/Developer/usr/bin/simctl"))
-        let output = try s.execute(arguments: ["list"])!
-        print(output)
-    }
-    func testInvokeListAuto() throws {
-        let s = try Simctl()
-        let output = try s.execute(arguments: ["list"])!
-        print(output)
+
+final class SimctlCreateTests: XCTestCase {
+    func testCreate() throws {
+        let simctl = try Simctl()
+        let typeIdentifier = DeviceTypeIdentifier("com.apple.CoreSimulator.SimDeviceType.iPhone-12")
+        let runtime = RuntimeIdentifier("com.apple.CoreSimulator.SimRuntime.iOS-14-3")
+        let r = try simctl.create(name: "testCreate", deviceType: typeIdentifier, runtimeIdentifier: runtime)
+        
+        //verify item was created
+        let list = try simctl.list()
+        let deviceInfo = list.deviceMapper[r]
+        XCTAssertEqual(deviceInfo.name,"testCreate")
+        
+        try simctl.delete(deviceIdentifier: r)
+        
     }
 }

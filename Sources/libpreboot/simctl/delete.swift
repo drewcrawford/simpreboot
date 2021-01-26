@@ -1,4 +1,4 @@
-//simctlTests: Tests for simctl
+//simctl/delete.swift: `simctl delete` implementation
 /*
  simpreboot © 2021 DrewCrawfordApps LLC
  Unless explicitly acquired and licensed from Licensor under another
@@ -15,18 +15,8 @@
  language governing rights and limitations under the RPL.
  */
 
-import XCTest
-import Foundation
-@testable import libpreboot
-final class SimctlTests: XCTestCase {
-    func testInvokeList() throws {
-        let s = Simctl(simctl: URL(fileURLWithPath: "/Applications/Xcode.app/Contents/Developer/usr/bin/simctl"))
-        let output = try s.execute(arguments: ["list"])!
-        print(output)
-    }
-    func testInvokeListAuto() throws {
-        let s = try Simctl()
-        let output = try s.execute(arguments: ["list"])!
-        print(output)
+extension Simctl {
+    func delete(deviceIdentifier: DeviceIdentifier) throws {
+        let _ = try execute(arguments: ["delete",deviceIdentifier.rawValue])
     }
 }

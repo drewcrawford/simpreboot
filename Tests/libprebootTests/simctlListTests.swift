@@ -20,18 +20,18 @@ import XCTest
 final class SimctlListTests: XCTestCase {
     func testListParse() throws {
         let devices = try DeviceMapper(listResponse: simCtlList)
-        XCTAssert(devices.specifications.contains(where: {$0.deviceType.rawValue == "com.apple.CoreSimulator.SimDeviceType.iPhone-12"}))
-        XCTAssertEqual(devices.specifications.count,121)
+        XCTAssert(devices.devices.contains(where: {$0.deviceTypeIdentifier.rawValue == "com.apple.CoreSimulator.SimDeviceType.iPhone-12"}))
+        XCTAssertEqual(devices.devices.count,121)
     }
     func testLiveList() throws {
         let simctl = try Simctl()
         let results = try simctl.list()
-        XCTAssert(results.deviceMapper.specifications.count > 0)
+        XCTAssert(results.deviceMapper.devices.count > 0)
     }
     
     func testDeviceTypeMapper() throws {
         let mapper = try DeviceTypeMapper(listResponse: simCtlList)
-        XCTAssertEqual(mapper[DeviceShortName("iPhone 12")].rawValue,"com.apple.CoreSimulator.SimDeviceType.iPhone-12")
+        XCTAssertEqual(mapper[DeviceTypeShortName("iPhone 12")].rawValue,"com.apple.CoreSimulator.SimDeviceType.iPhone-12")
     }
     func testRuntimeMapper() throws {
         let mapper = try RuntimeMapper(listResponse: simCtlList)
