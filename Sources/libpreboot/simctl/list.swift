@@ -72,6 +72,52 @@ struct DeviceTypeMapper {
     }
 }
 
+struct RuntimeIdentifier: Decodable {
+    let rawValue: String
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        rawValue = try container.decode(String.self)
+    }
+}
+struct RuntimeShortName: Decodable, Hashable {
+    let rawValue: String
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        rawValue = try container.decode(String.self)
+    }
+    init(_ rawValue: String) {
+        self.rawValue = rawValue
+    }
+}
+
+private struct ListCommandRuntimes: Decodable {
+    struct Runtime: Decodable {
+        let name: RuntimeShortName
+        let identifier: RuntimeIdentifier
+    }
+    let runtimes: [Runtime]
+}
+
+struct RuntimeMapper {
+    private let maps: [RuntimeShortName: RuntimeIdentifier]
+    init(listResponse: String) throws {
+        guard let data = listResponse.data(using: .utf8) else {
+            throw Simctl.Errors.cantDecodeString
+        }
+        
+        let decoder = JSONDecoder()
+        let command = try decoder.decode(ListCommandRuntimes.self, from: data)
+        var _maps: [RuntimeShortName: RuntimeIdentifier] = [:]
+        for runtime in command.runtimes {
+            _maps[runtime.name] = runtime.identifier
+        }
+        maps = _maps
+    }
+    subscript(name: RuntimeShortName) -> RuntimeIdentifier {
+        return maps[name]!
+    }
+}
+
 extension Simctl {
    
     static func parse(listResponse: String) throws -> [SimulatorSpecification] {

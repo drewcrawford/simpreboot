@@ -33,4 +33,8 @@ final class SimctlListTests: XCTestCase {
         let mapper = try DeviceTypeMapper(listResponse: simCtlList)
         XCTAssertEqual(mapper[DeviceShortName("iPhone 12")].rawValue,"com.apple.CoreSimulator.SimDeviceType.iPhone-12")
     }
+    func testRuntimeMapper() throws {
+        let mapper = try RuntimeMapper(listResponse: simCtlList)
+        XCTAssertEqual(mapper[RuntimeShortName("iOS 14.3")].rawValue,"com.apple.CoreSimulator.SimRuntime.iOS-14-3")
+    }
 }
