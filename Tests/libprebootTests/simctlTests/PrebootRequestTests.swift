@@ -1,4 +1,4 @@
-//PrebootRequest.swift
+//PrebootRequestTests.swift
 /*
  simpreboot © 2021 DrewCrawfordApps LLC
  Unless explicitly acquired and licensed from Licensor under another
@@ -14,28 +14,12 @@
  PURPOSE, QUIET ENJOYMENT, OR NON-INFRINGEMENT. See the RPL for specific
  language governing rights and limitations under the RPL.
  */
-import os
-/**
- The device(s) we need to create and boot
- */
-struct PrebootRequest {
-    ///how many devices we require
-    let count: Int
-    let deviceType: DeviceTypeIdentifier
-    let runtime: RuntimeIdentifier
-}
-
-/**
- Device(s) we may need to boot
- */
-struct PrebootRequestCreated {
-    let devices: [DeviceIdentifier]
-    
-    var recommendedXcodeArgs: String {
-        var args = "-parallelize-tests-among-destinations"
-        for device in devices {
-            args.append(" -destination 'id=\(device.rawValue)'")
-        }
-        return args
+import XCTest
+@testable import libpreboot
+final class PrebootRequestTests: XCTestCase {
+    func testArgs() {
+        let request = PrebootRequestCreated(devices: [DeviceIdentifier("identifier1"),DeviceIdentifier("identifier2")])
+        let args = request.recommendedXcodeArgs
+        XCTAssertEqual(args, "-parallelize-tests-among-destinations -destination 'id=identifier1' -destination 'id=identifier2'")
     }
 }
