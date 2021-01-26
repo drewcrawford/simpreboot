@@ -65,4 +65,10 @@ extension Simctl {
         }
         return specs
     }
+    
+    func list() throws -> [SimulatorSpecification] {
+        let output = try execute(arguments: ["list"])
+        return Simctl.parse(listResponse: output)
+    }
 }
+

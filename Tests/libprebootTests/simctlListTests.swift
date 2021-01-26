@@ -23,4 +23,9 @@ final class SimctlListTests: XCTestCase {
         XCTAssert(devices.contains(where: {$0.deviceType == "iPhone 8"}))
         XCTAssertEqual(devices.count,121)
     }
+    func testLiveList() throws {
+        let simctl = try Simctl()
+        let results = try simctl.list()
+        XCTAssert(results.count > 0)
+    }
 }
