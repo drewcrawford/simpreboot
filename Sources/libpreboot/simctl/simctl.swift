@@ -15,6 +15,7 @@
  language governing rights and limitations under the RPL.
  */
 import Foundation
+import os.log
 
 struct Simctl {
     private let simctl: URL
@@ -45,5 +46,28 @@ struct Simctl {
     }
     init(simctl: URL) {
         self.simctl = simctl
+    }
+    ///Creates the type by asking xcrun which simctl to use
+    init() throws {
+        let xcruntask = try NSUserUnixTask(url: URL(fileURLWithPath: "/usr/bin/xcrun"))
+        let sema = DispatchSemaphore(value: 0)
+        let stdout = Pipe()
+        var err: Error? = nil
+        xcruntask.standardOutput = stdout.fileHandleForWriting
+        xcruntask.execute(withArguments: ["-f","simctl"], completionHandler: .some({ (error) in
+            if let error = error {
+                err = error
+            }
+            sema.signal()
+        }))
+        sema.wait()
+        if let error = err {
+            throw error
+        }
+        let _data = try stdout.fileHandleForReading.readToEnd()
+        guard let data = _data else { throw Errors.noDataToRead }
+        guard let string = String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) else { throw Errors.cantDecodeString }
+        logger.debug("Using simctl \(string)")
+        self.simctl = URL(fileURLWithPath: string)
     }
 }

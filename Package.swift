@@ -5,7 +5,7 @@ import PackageDescription
 
 let package = Package(
     name: "simpreboot",
-    platforms: [.macOS("10.15.4")],
+    platforms: [.macOS("11")],
     dependencies: [
         // .package(url: /* package url */, from: "1.0.0"),
     ],

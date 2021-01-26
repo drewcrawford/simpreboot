@@ -1,4 +1,4 @@
-//simctlTests: Tests for simctl
+//logging.swift
 /*
  simpreboot © 2021 DrewCrawfordApps LLC
  Unless explicitly acquired and licensed from Licensor under another
@@ -14,19 +14,5 @@
  PURPOSE, QUIET ENJOYMENT, OR NON-INFRINGEMENT. See the RPL for specific
  language governing rights and limitations under the RPL.
  */
-
-import XCTest
-import Foundation
-@testable import libpreboot
-final class SimctlTests: XCTestCase {
-    func testInvokeList() throws {
-        let s = Simctl(simctl: URL(fileURLWithPath: "/Applications/Xcode.app/Contents/Developer/usr/bin/simctl"))
-        let output = try s.execute(arguments: ["list"])
-        print(output)
-    }
-    func testInvokeListAuto() throws {
-        let s = try Simctl()
-        let output = try s.execute(arguments: ["list"])
-        print(output)
-    }
-}
+import os.log
+let logger = Logger(subsystem: "com.drewcrawfordapps.simpreboot", category: "")
