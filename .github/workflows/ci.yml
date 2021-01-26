@@ -1,7 +1,7 @@
 on: push
 jobs:
     test:
-        runs-on: macos-latest
+        runs-on: macos-11.0 #macOS11 is not 'latest' at the time of this writing
         steps:
             - uses: actions/checkout@v2
             - name: Test

@@ -15,4 +15,4 @@
  language governing rights and limitations under the RPL.
  */
 import os.log
-let logger = Logger(subsystem: "com.drewcrawfordapps.simpreboot", category: "")
+let logger = Logger(subsystem: "com.drewcrawfordapps.simpreboot", category: "libpreboot")
