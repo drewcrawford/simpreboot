@@ -25,6 +25,7 @@ struct Simctl {
         case returnCode(Int)
     }
     func execute(arguments: [String]) throws -> String? {
+        logger.debug("simctl \(arguments.joined(separator: " "))")
         let process = Process()
         process.arguments = arguments
         process.executableURL = simctl

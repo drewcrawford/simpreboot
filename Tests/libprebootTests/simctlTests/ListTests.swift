@@ -1,4 +1,4 @@
-//simctlListTests.swift: tests for 'simctl list'
+//ListTests.swift: tests for 'simctl list'
 /*
  simpreboot © 2021 DrewCrawfordApps LLC
  Unless explicitly acquired and licensed from Licensor under another
@@ -17,7 +17,7 @@
 
 import XCTest
 @testable import libpreboot
-final class SimctlListTests: XCTestCase {
+final class ListTests: XCTestCase {
     func testListParse() throws {
         let devices = try DeviceMapper(listResponse: simCtlList)
         XCTAssert(devices.devices.contains(where: {$0.deviceTypeIdentifier.rawValue == "com.apple.CoreSimulator.SimDeviceType.iPhone-12"}))

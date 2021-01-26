@@ -1,4 +1,4 @@
-//SimCtlCreateTests.swift: `simctl create` tests
+//CreateTests.swift: `simctl create` tests
 /*
  simpreboot © 2021 DrewCrawfordApps LLC
  Unless explicitly acquired and licensed from Licensor under another
@@ -18,7 +18,7 @@
 import XCTest
 @testable import libpreboot
 
-final class SimctlCreateTests: XCTestCase {
+final class CreateTests: XCTestCase {
     func testCreate() throws {
         let simctl = try Simctl()
         let typeIdentifier = DeviceTypeIdentifier("com.apple.CoreSimulator.SimDeviceType.iPhone-12")

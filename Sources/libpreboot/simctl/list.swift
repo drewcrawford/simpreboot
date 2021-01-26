@@ -27,11 +27,26 @@ struct DeviceIdentifier: Decodable, Equatable {
     }
 }
 
+struct DeviceState: Decodable, Equatable {
+    let rawValue: String
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        rawValue = try container.decode(String.self)
+    }
+    init(_ string: String) {
+        self.rawValue = string
+    }
+    static let shutdown = DeviceState("Shutdown")
+    static let booted = DeviceState("Booted")
+}
+
 private struct ListCommandDevices: Decodable {
     struct Device: Decodable {
         let name: String
         let deviceTypeIdentifier: DeviceTypeIdentifier
         let udid: DeviceIdentifier
+        let isAvailable: Bool
+        let state: DeviceState
     }
     let devices: [String: [Device]] //in order to make json happy, this needs to be indexed by String, not RuntimeIdentifier
 }
@@ -42,11 +57,15 @@ struct Device {
     let deviceTypeIdentifier: DeviceTypeIdentifier
     let identifier: DeviceIdentifier
     let runtime: RuntimeIdentifier
+    let isAvailable: Bool
+    let state: DeviceState
     
     fileprivate init(simctlDevice: ListCommandDevices.Device, runtime: RuntimeIdentifier) {
         name = simctlDevice.name
         deviceTypeIdentifier = simctlDevice.deviceTypeIdentifier
         identifier = simctlDevice.udid
+        isAvailable = simctlDevice.isAvailable
+        state = simctlDevice.state
         self.runtime = runtime
     }
 }
@@ -200,6 +219,14 @@ struct DeviceMapper {
             matchingDevices.removeLast()
         }
         return matchingDevices.map{$0.identifier}
+    }
+    
+    var available: [Device] {
+        devices.filter({$0.isAvailable})
+    }
+    
+    var bootable: [Device] {
+        return available.filter({$0.state != .booted})
     }
 }
 
