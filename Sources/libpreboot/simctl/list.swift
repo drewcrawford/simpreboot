@@ -31,6 +31,9 @@ struct DeviceTypeIdentifier: Decodable, Hashable {
         let container = try decoder.singleValueContainer()
         rawValue = try container.decode(String.self)
     }
+    init(_ string: String) {
+        self.rawValue = string
+    }
 }
 struct DeviceShortName: Decodable, Hashable {
     let rawValue: String
@@ -152,6 +155,12 @@ struct DeviceMapper {
             }
         }
         specifications = _specifications
+    }
+    /**
+     Finds created devices matching the given type identifier and runtime
+     */
+    func devices(matching typeIdentifier: DeviceTypeIdentifier, runtimeIdentifier: RuntimeIdentifier) -> [SimulatorSpecification] {
+        specifications.filter({$0.deviceType == typeIdentifier && $0.runtime == runtimeIdentifier})
     }
 }
 
