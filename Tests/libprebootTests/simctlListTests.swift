@@ -47,4 +47,19 @@ final class SimctlListTests: XCTestCase {
         let matchingDevices = mapper.devices(matching: DeviceTypeIdentifier("com.apple.CoreSimulator.SimDeviceType.iPhone-12"), runtimeIdentifier: RuntimeIdentifier("com.apple.CoreSimulator.SimRuntime.iOS-14-3"))
         XCTAssertEqual(matchingDevices.count, 1)
     }
+    
+    func testPartiallyResolve() throws {
+        let mapper = try DeviceMapper(listResponse: simCtlList)
+        let deviceType = DeviceTypeIdentifier("com.apple.CoreSimulator.SimDeviceType.iPhone-12")
+        let runtime = RuntimeIdentifier("com.apple.CoreSimulator.SimRuntime.iOS-14-3")
+        
+        let requestZero = PrebootRequest(count: 0, deviceType: deviceType, runtime: runtime)
+        XCTAssertEqual(mapper.partiallyResolve(request: requestZero).count, 0)
+        
+        let requestOne = PrebootRequest(count: 1, deviceType: deviceType, runtime: runtime)
+        XCTAssertEqual(mapper.partiallyResolve(request: requestOne).count, 1)
+        
+        let requestTwo = PrebootRequest(count: 2, deviceType: deviceType, runtime: runtime)
+        XCTAssertEqual(mapper.partiallyResolve(request: requestTwo).count, 1)
+    }
 }

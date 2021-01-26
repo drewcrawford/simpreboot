@@ -1,4 +1,4 @@
-//simctl/create.swift: `simctl create` implementation
+//PrebootRequest.swift
 /*
  simpreboot © 2021 DrewCrawfordApps LLC
  Unless explicitly acquired and licensed from Licensor under another
@@ -14,12 +14,13 @@
  PURPOSE, QUIET ENJOYMENT, OR NON-INFRINGEMENT. See the RPL for specific
  language governing rights and limitations under the RPL.
  */
-
-
-
-extension Simctl {
-    func create(name: String, deviceType: DeviceTypeIdentifier, runtimeIdentifier: RuntimeIdentifier) throws -> DeviceIdentifier {
-        let result = try execute(arguments: ["create",name,deviceType.rawValue, runtimeIdentifier.rawValue])
-        return DeviceIdentifier(result!.trimmingCharacters(in: .whitespacesAndNewlines))
-    }
+import os
+/**
+ The device(s) we need to create and boot
+ */
+struct PrebootRequest {
+    ///how many devices we require
+    let count: Int
+    let deviceType: DeviceTypeIdentifier
+    let runtime: RuntimeIdentifier
 }

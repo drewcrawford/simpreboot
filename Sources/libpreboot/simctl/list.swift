@@ -192,6 +192,15 @@ struct DeviceMapper {
     subscript(identifier: DeviceIdentifier) -> Device {
         return devices.first(where: {$0.identifier == identifier})!
     }
+    
+    ///Partially resolve a request by mapping available devices
+    func partiallyResolve(request: PrebootRequest) -> [DeviceIdentifier] {
+        var matchingDevices = devices(matching: request.deviceType, runtimeIdentifier: request.runtime)
+        while matchingDevices.count > request.count {
+            matchingDevices.removeLast()
+        }
+        return matchingDevices.map{$0.identifier}
+    }
 }
 
 extension Simctl {
