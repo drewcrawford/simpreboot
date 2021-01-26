@@ -16,9 +16,38 @@
  */
 
 
-
-extension SimulatorSpecification {
-    func list() {
+extension Simctl {
+    /** Extracts a section starting with `== Devices ==`*/
+    private static func extractDeviceSection(listResponse: String) -> [String] {
+        let lines = listResponse.split(separator: "\n")
+        var section: [String] = []
+        var inSection = false
+        for line in lines {
+            if !inSection && line == "== Devices ==" {
+                inSection = true
+            }
+            else if inSection && line.starts(with: "==") {
+                inSection = false
+            }
+            else if inSection {
+                section.append(String(line))
+            }
+        }
+        return section
+    }
+    static func parse(listResponse: String) {
+        let deviceSection = extractDeviceSection(listResponse: listResponse)
+        var currentRuntime: Substring? = nil
         
+        for line in deviceSection {
+            if line.starts(with: "-- "), line.hasSuffix(" --") {
+                let h = line.index(line.startIndex, offsetBy: 3)
+                let t = line.index(line.endIndex, offsetBy: -3)
+                currentRuntime = line[h..<t]
+            }
+            else {
+                print("[\(currentRuntime!)] \(line)")
+            }
+        }
     }
 }
