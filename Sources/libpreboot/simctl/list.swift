@@ -68,6 +68,10 @@ struct Device {
         state = simctlDevice.state
         self.runtime = runtime
     }
+    
+    var isBootable: Bool {
+        return isAvailable && state != .booted
+    }
 }
 
 struct DeviceTypeIdentifier: Decodable, Hashable {
@@ -208,8 +212,8 @@ struct DeviceMapper {
     func devices(matching typeIdentifier: DeviceTypeIdentifier, runtimeIdentifier: RuntimeIdentifier) -> [Device] {
         devices.filter({$0.deviceTypeIdentifier == typeIdentifier && $0.runtime == runtimeIdentifier})
     }
-    subscript(identifier: DeviceIdentifier) -> Device {
-        return devices.first(where: {$0.identifier == identifier})!
+    subscript(identifier: DeviceIdentifier) -> Device? {
+        return devices.first(where: {$0.identifier == identifier})
     }
     
     ///Partially resolve a request by mapping available devices
@@ -226,7 +230,7 @@ struct DeviceMapper {
     }
     
     var bootable: [Device] {
-        return available.filter({$0.state != .booted})
+        return devices.filter({$0.isBootable})
     }
 }
 

@@ -17,6 +17,20 @@
 
 extension Simctl {
     func boot(device: DeviceIdentifier) throws {
+        logger.info("Booting \(device.rawValue)")
         let _ = try execute(arguments: ["boot",device.rawValue])
+    }
+    func bootIfNeeded(request: PrebootRequestCreated, deviceMapper: DeviceMapper) throws {
+        for identifier in request.devices {
+            if let device = deviceMapper[identifier] {
+                if device.isBootable {
+                    try boot(device: device.identifier)
+                }
+            }
+            else {
+                //if the device is not in the mapper, we assume it was created "recently", e.g. after the deviceMapper was created.
+                try boot(device: identifier)
+            }
+        }
     }
 }

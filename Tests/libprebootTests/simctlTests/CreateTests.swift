@@ -27,7 +27,7 @@ final class CreateTests: XCTestCase {
         
         //verify item was created
         let list = try simctl.list()
-        let deviceInfo = list.deviceMapper[r]
+        let deviceInfo = try XCTUnwrap(list.deviceMapper[r])
         XCTAssertEqual(deviceInfo.name,"testCreate")
         
         try simctl.delete(deviceIdentifier: r)

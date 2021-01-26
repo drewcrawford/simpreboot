@@ -28,12 +28,38 @@ final class BootTests: XCTestCase {
         try simctl.boot(device: device)
         
         let newList = try simctl.list()
-        XCTAssertEqual(newList.deviceMapper[device].state, .booted)
+        let newDevice = try XCTUnwrap(newList.deviceMapper[device])
+        XCTAssertEqual(newDevice.state, .booted)
         
         //shutdown when done
         try simctl.shutdown(device: device)
         let shutdownList = try simctl.list()
-        XCTAssertEqual(shutdownList.deviceMapper[device].state, .shutdown)
-
+        let shutdownDevice = try XCTUnwrap(shutdownList.deviceMapper[device])
+        XCTAssertEqual(shutdownDevice.state, .shutdown)
+    }
+    func testBootIfNeeded() throws {
+        let simctl = try Simctl()
+        let list = try simctl.list()
+        //create a request with 3 bootable devices
+        var bootMe: [DeviceIdentifier] = []
+        var bootable = list.deviceMapper.bootable
+        while bootMe.count < 3 {
+            let device = bootable.removeLast()
+            bootMe.append(device.identifier)
+        }
+        
+        let request = PrebootRequestCreated(devices: bootMe)
+        try simctl.bootIfNeeded(request: request, deviceMapper: list.deviceMapper)
+        
+        let newList = try simctl.list()
+        for identifier in request.devices {
+            let device = try XCTUnwrap(newList.deviceMapper[identifier])
+            XCTAssertEqual(device.state, .booted)
+        }
+        
+        //shutdown all devices
+        for identifier in request.devices {
+            try simctl.shutdown(device: identifier)
+        }
     }
 }
