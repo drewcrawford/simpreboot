@@ -37,4 +37,8 @@ final class SimctlListTests: XCTestCase {
         let mapper = try RuntimeMapper(listResponse: simCtlList)
         XCTAssertEqual(mapper[RuntimeShortName("iOS 14.3")].rawValue,"com.apple.CoreSimulator.SimRuntime.iOS-14-3")
     }
+    func testBestOS() throws {
+        let mapper = try RuntimeMapper(listResponse: simCtlList)
+        XCTAssertEqual(mapper.best(for: "iOS"), RuntimeIdentifier("com.apple.CoreSimulator.SimRuntime.iOS-14-3"))
+    }
 }

@@ -72,11 +72,14 @@ struct DeviceTypeMapper {
     }
 }
 
-struct RuntimeIdentifier: Decodable {
+struct RuntimeIdentifier: Decodable, Hashable {
     let rawValue: String
     init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         rawValue = try container.decode(String.self)
+    }
+    init(_ rawValue: String) {
+        self.rawValue = rawValue
     }
 }
 struct RuntimeShortName: Decodable, Hashable {
@@ -94,12 +97,14 @@ private struct ListCommandRuntimes: Decodable {
     struct Runtime: Decodable {
         let name: RuntimeShortName
         let identifier: RuntimeIdentifier
+        let version: String
     }
     let runtimes: [Runtime]
 }
 
 struct RuntimeMapper {
     private let maps: [RuntimeShortName: RuntimeIdentifier]
+    private let infos: [RuntimeIdentifier: ListCommandRuntimes.Runtime]
     init(listResponse: String) throws {
         guard let data = listResponse.data(using: .utf8) else {
             throw Simctl.Errors.cantDecodeString
@@ -108,13 +113,22 @@ struct RuntimeMapper {
         let decoder = JSONDecoder()
         let command = try decoder.decode(ListCommandRuntimes.self, from: data)
         var _maps: [RuntimeShortName: RuntimeIdentifier] = [:]
+        var _infos: [RuntimeIdentifier: ListCommandRuntimes.Runtime] = [:]
         for runtime in command.runtimes {
             _maps[runtime.name] = runtime.identifier
+            _infos[runtime.identifier] = runtime
         }
         maps = _maps
+        infos = _infos
+        
     }
     subscript(name: RuntimeShortName) -> RuntimeIdentifier {
         return maps[name]!
+    }
+    func best(for family: String) -> RuntimeIdentifier {
+        let candidates = maps.keys.filter({$0.rawValue.hasPrefix(family)})
+        let bestShortName = candidates.max(by: {$0.rawValue < $1.rawValue})!
+        return self[bestShortName]
     }
 }
 
