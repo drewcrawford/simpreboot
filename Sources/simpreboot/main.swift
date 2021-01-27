@@ -1,2 +1,2 @@
-
-print("Hello, world!")
+import libpreboot
+MainCommand.main()

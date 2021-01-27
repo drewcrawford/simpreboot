@@ -7,15 +7,15 @@ let package = Package(
     name: "simpreboot",
     platforms: [.macOS("11")],
     dependencies: [
-        // .package(url: /* package url */, from: "1.0.0"),
+        .package(url: "https://github.com/apple/swift-argument-parser", from: "0.3.2"),
     ],
     targets: [
         .target(
             name: "simpreboot",
-            dependencies: []),
+            dependencies: ["libpreboot"]),
         .target(
             name: "libpreboot",
-            dependencies: []),
+            dependencies:[.product(name: "ArgumentParser", package: "swift-argument-parser")]),
         .testTarget(
             name: "simprebootTests",
             dependencies: ["simpreboot"]),

@@ -19,20 +19,14 @@ import XCTest
 import class Foundation.Bundle
 
 final class simprebootTests: XCTestCase {
-    func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct
-        // results.
-
-        // Some of the APIs that we use below are available in macOS 10.13 and above.
-        guard #available(macOS 10.13, *) else {
-            return
-        }
-
+    
+    
+    func exec(arguments: [String]) throws -> String {
         let fooBinary = productsDirectory.appendingPathComponent("simpreboot")
 
         let process = Process()
         process.executableURL = fooBinary
+        process.arguments = arguments
 
         let pipe = Pipe()
         process.standardOutput = pipe
@@ -42,9 +36,23 @@ final class simprebootTests: XCTestCase {
 
         let data = pipe.fileHandleForReading.readDataToEndOfFile()
         let output = String(data: data, encoding: .utf8)
-
-        XCTAssertEqual(output, "Hello, world!\n")
+        let str = try XCTUnwrap(output)
+        return str
     }
+    func testVersion() throws {
+        
+        let output = try exec(arguments: ["version"])
+
+        XCTAssertEqual(output, "simpreboot © 2021 DrewCrawfordApps LLC\nvUNSPECIFIED-DEBUG\n")
+    }
+    
+    func testVerisonQuiet() throws {
+        let output = try exec(arguments: ["version","--quiet"])
+        XCTAssertEqual(output, "UNSPECIFIED-DEBUG")
+
+    }
+    
+    
 
     /// Returns path to the built products directory.
     var productsDirectory: URL {
@@ -57,8 +65,4 @@ final class simprebootTests: XCTestCase {
         return Bundle.main.bundleURL
       #endif
     }
-
-    static var allTests = [
-        ("testExample", testExample),
-    ]
 }
