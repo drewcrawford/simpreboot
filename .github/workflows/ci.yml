@@ -1,12 +1,10 @@
-# disabled due to https://github.com/actions/virtual-environments/issues/2486
-
-# on: push
-# jobs:
-#     test:
-#         runs-on: macos-11.0 #macOS11 is not 'latest' at the time of this writing
-#         steps:
-#             - uses: actions/checkout@v2
-#             - name: Test
-#               run: |
-#                        /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swift test
-#         
+on: push
+jobs:
+    test:
+        runs-on: macos-latest
+        steps:
+            - uses: actions/checkout@v2
+            - name: Test
+              run: |
+                       /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swift test
+        

@@ -5,7 +5,7 @@ import PackageDescription
 
 let package = Package(
     name: "simpreboot",
-    platforms: [.macOS("11")],
+    platforms: [.macOS("10.15.4")],
     dependencies: [
         .package(url: "https://github.com/apple/swift-argument-parser", from: "0.3.2"),
     ],
