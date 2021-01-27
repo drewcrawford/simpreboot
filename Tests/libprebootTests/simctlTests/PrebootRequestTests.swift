@@ -24,9 +24,6 @@ final class PrebootRequestTests: XCTestCase {
     }
     
     func testRunRequest() throws {
-        let identifier = DeviceTypeIdentifier("com.apple.CoreSimulator.SimDeviceType.iPhone-12")
-        let request = PrebootRequest(count: 3, deviceType: identifier, runtime: testRuntime)
-        
         let simctl = try Simctl()
         //cleanup
         logger.info("Pre cleanup")
@@ -34,6 +31,11 @@ final class PrebootRequestTests: XCTestCase {
         
         let priorList = try simctl.list()
         logger.info("Run request")
+        
+        let identifier = DeviceTypeIdentifier("com.apple.CoreSimulator.SimDeviceType.iPhone-12")
+        let request = PrebootRequest(count: 3, deviceType: identifier, runtime: testRuntime(runtimeMapper: priorList.runtimeMapper))
+        
+
         let createRequest = try request.run(simctl: simctl, deviceMapper: priorList.deviceMapper)
         XCTAssertEqual(createRequest.devices.count, 3)
         let postRequest = try simctl.list()

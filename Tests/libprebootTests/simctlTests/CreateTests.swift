@@ -22,11 +22,12 @@ final class CreateTests: XCTestCase {
     func testCreate() throws {
         let simctl = try Simctl()
         let typeIdentifier = DeviceTypeIdentifier("com.apple.CoreSimulator.SimDeviceType.iPhone-12")
-        let r = try simctl.create(name: "testCreate", deviceType: typeIdentifier, runtimeIdentifier: testRuntime)
+        let preList = try simctl.list()
+        let r = try simctl.create(name: "testCreate", deviceType: typeIdentifier, runtimeIdentifier: testRuntime(runtimeMapper: preList.runtimeMapper))
         
         //verify item was created
-        let list = try simctl.list()
-        let deviceInfo = try XCTUnwrap(list.deviceMapper[r])
+        let postList = try simctl.list()
+        let deviceInfo = try XCTUnwrap(postList.deviceMapper[r])
         XCTAssertEqual(deviceInfo.name,"testCreate")
         
         try simctl.delete(deviceIdentifier: r)
@@ -38,7 +39,7 @@ final class CreateTests: XCTestCase {
         
         try simctl.deleteAll(named: "simpreboot")
         let priorList = try simctl.list()
-        let createRequest = PrebootRequest(count: 3, deviceType: typeIdentifier, runtime: testRuntime)
+        let createRequest = PrebootRequest(count: 3, deviceType: typeIdentifier, runtime: testRuntime(runtimeMapper: priorList.runtimeMapper))
         let _ = try simctl.createIfNeeded(request: createRequest, deviceMapper: priorList.deviceMapper)
         
         let newList = try simctl.list()

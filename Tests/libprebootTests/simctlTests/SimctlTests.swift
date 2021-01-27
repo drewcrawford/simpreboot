@@ -20,7 +20,9 @@ import Foundation
 @testable import libpreboot
 
 //runtime known to simctl that we can use for testing.  Need to bump this in new xcodes for tests to pass
-internal let testRuntime = RuntimeIdentifier("com.apple.CoreSimulator.SimRuntime.iOS-14-4")
+func testRuntime(runtimeMapper: RuntimeMapper) -> RuntimeIdentifier {
+    return runtimeMapper.best(for: "iOS")
+}
 final class SimctlTests: XCTestCase {
     func testInvokeList() throws {
         let s = Simctl(simctl: URL(fileURLWithPath: "/Applications/Xcode.app/Contents/Developer/usr/bin/simctl"))
