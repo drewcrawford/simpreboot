@@ -33,7 +33,7 @@ final class simprebootTests: XCTestCase {
 
         try process.run()
         process.waitUntilExit()
-
+        XCTAssertEqual(process.terminationStatus, 0)
         let data = pipe.fileHandleForReading.readDataToEndOfFile()
         let output = String(data: data, encoding: .utf8)
         let str = try XCTUnwrap(output)
@@ -50,6 +50,11 @@ final class simprebootTests: XCTestCase {
         let output = try exec(arguments: ["version","--quiet"])
         XCTAssertEqual(output, "UNSPECIFIED-DEBUG")
 
+    }
+    
+    func testDeleteAll() throws {
+        let _ = try exec(arguments: ["deleteall"])
+        
     }
     
     func testIntegration() throws {

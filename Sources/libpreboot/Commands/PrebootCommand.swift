@@ -18,7 +18,7 @@
 import ArgumentParser
 import Foundation
 struct PrebootCommand: ParsableCommand {
-    static let configuration = CommandConfiguration(commandName: "preboot")
+    static let configuration = CommandConfiguration(commandName: "preboot", abstract: "Preboots one or more simulators.")
     @Option(help: "How many instances to bring up") var count: Int
     @Option(help: "Device type.  May be a name like 'iPhone 12' or an identifier like 'com.apple.CoreSimulator.SimDeviceType.iPhone-12'.  See the output of`xcrun simctl list` for a list.")
     var deviceTypeInfo: String

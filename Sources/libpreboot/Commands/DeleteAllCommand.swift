@@ -1,4 +1,4 @@
-//MainCommand.swift
+//DeleteAllCommand.swift
 /*
  simpreboot © 2021 DrewCrawfordApps LLC
  Unless explicitly acquired and licensed from Licensor under another
@@ -14,24 +14,14 @@
  PURPOSE, QUIET ENJOYMENT, OR NON-INFRINGEMENT. See the RPL for specific
  language governing rights and limitations under the RPL.
  */
-
 import ArgumentParser
-public struct MainCommand: ParsableCommand {
-    public static var configuration = CommandConfiguration(
-        commandName: "simpreboot",
-        abstract: "Preboot iOS Simulators",
-        subcommands: [Version.self,PrebootCommand.self, DeleteAllCommand.self],
-        defaultSubcommand: PrebootCommand.self)
-    public init() { }
-}
-
-struct CommonOptions: ParsableArguments {
-    @Flag(name:[.long], help:"Avoid unnecessary prints")
-    var quiet: Bool = false
+struct DeleteAllCommand: ParsableCommand {
+    static let configuration = CommandConfiguration(commandName: "deleteall", abstract: "Deletes all simulators named 'simpreboot'.")
     
-    func setAppropriateLogLevel() {
-        if quiet {
-            logger = .init(level: .quiet)
-        }
+    @Option(help: "Path to simctl.  If you don't provide a value, we will ask `xcrun` for the path.")
+    var simctlPath: String?
+    func run() throws {
+        let simctl = try Simctl(argument: simctlPath)
+        try simctl.deleteAll(named: "simpreboot")
     }
 }
