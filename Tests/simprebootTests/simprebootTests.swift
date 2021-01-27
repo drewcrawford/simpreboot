@@ -52,6 +52,17 @@ final class simprebootTests: XCTestCase {
 
     }
     
+    func testIntegration() throws {
+        let output = try exec(arguments: ["--device-type-info","iPhone 12","--count","3"])
+        print(output)
+        XCTAssert(output.contains("Recommended arguments:"))
+    }
+    func testIntegrationQuiet() throws {
+        let output = try exec(arguments: ["--device-type-info","iPhone 12","--count","3","--quiet"])
+        XCTAssert(output.starts(with: "-parallelize-tests-among-destinations"))
+        XCTAssert(output.hasSuffix("'")) //no newline
+    }
+    
     
 
     /// Returns path to the built products directory.

@@ -19,13 +19,19 @@ import ArgumentParser
 public struct MainCommand: ParsableCommand {
     public static var configuration = CommandConfiguration(
         commandName: "simpreboot",
-        abstract: "A utility for performing maths.",
-        subcommands: [Version.self],
-        defaultSubcommand: Version.self)
+        abstract: "Preboot iOS Simulators",
+        subcommands: [Version.self,PrebootCommand.self],
+        defaultSubcommand: PrebootCommand.self)
     public init() { }
 }
 
 struct CommonOptions: ParsableArguments {
     @Flag(name:[.long], help:"Avoid unnecessary prints")
     var quiet: Bool = false
+    
+    func setAppropriateLogLevel() {
+        if quiet {
+            logger = .init(level: .quiet)
+        }
+    }
 }

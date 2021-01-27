@@ -42,6 +42,25 @@ final class ListTests: XCTestCase {
         XCTAssertEqual(mapper.best(for: "iOS"), RuntimeIdentifier("com.apple.CoreSimulator.SimRuntime.iOS-14-3"))
     }
     
+    func testFamilies() throws {
+        let mapper = try RuntimeMapper(listResponse: simCtlList)
+        XCTAssert(mapper.allIdentifiers.contains(where: {$0.family == "iOS"}))
+        XCTAssert(mapper.allIdentifiers.contains(where: {$0.family == "tvOS"}))
+        XCTAssert(mapper.allIdentifiers.contains(where: {$0.family == "watchOS"}))
+        for item in mapper.allIdentifiers {
+            let _ = item.family
+        }
+    }
+    
+    func testFamiliesLive() throws {
+        let simctl = try Simctl()
+        let mapper = try simctl.list().runtimeMapper
+        XCTAssert(mapper.allIdentifiers.contains(where: {$0.family == "iOS"}))
+        for item in mapper.allIdentifiers {
+            let _ = item.family
+        }
+    }
+    
     func testDevicesMatching() throws {
         let mapper = try DeviceMapper(listResponse: simCtlList)
         let matchingDevices = mapper.devices(matching: DeviceTypeIdentifier("com.apple.CoreSimulator.SimDeviceType.iPhone-12"), runtimeIdentifier: RuntimeIdentifier("com.apple.CoreSimulator.SimRuntime.iOS-14-3"))

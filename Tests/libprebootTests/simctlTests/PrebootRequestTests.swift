@@ -25,8 +25,7 @@ final class PrebootRequestTests: XCTestCase {
     
     func testRunRequest() throws {
         let identifier = DeviceTypeIdentifier("com.apple.CoreSimulator.SimDeviceType.iPhone-12")
-        let runtime = RuntimeIdentifier("com.apple.CoreSimulator.SimRuntime.iOS-14-3")
-        let request = PrebootRequest(count: 3, deviceType: identifier, runtime: runtime)
+        let request = PrebootRequest(count: 3, deviceType: identifier, runtime: testRuntime)
         
         let simctl = try Simctl()
         //cleanup

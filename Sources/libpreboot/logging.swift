@@ -15,4 +15,22 @@
  language governing rights and limitations under the RPL.
  */
 import os.log
-let logger = Logger(subsystem: "com.drewcrawfordapps.simpreboot", category: "libpreboot")
+struct Logger {
+    let level: LogLevel
+    enum LogLevel: Comparable {
+        case quiet
+        case info
+        case debug
+    }
+    func info(_ string: String) {
+        if level >= .info { print("\(string)")}
+    }
+    func debug(_ string: String) {
+        if level >= .debug { print("[debug] \(string)")}
+    }
+}
+#if DEBUG
+var logger = Logger(level: .debug)
+#else
+var logger = Logger(level: .info)
+#endif

@@ -71,4 +71,14 @@ struct Simctl {
         logger.debug("Using simctl \(string)")
         self.simctl = URL(fileURLWithPath: string)
     }
+    
+    ///Creates with the specified path or uses `xcrun` if nil
+    init(argument: String?) throws {
+        if let argument = argument {
+            self.init(simctl: URL(fileURLWithPath: argument))
+        }
+        else {
+            try self.init()
+        }
+    }
 }

@@ -83,6 +83,12 @@ struct DeviceTypeIdentifier: Decodable, Hashable {
     init(_ string: String) {
         self.rawValue = string
     }
+    var family: String {
+        if rawValue.hasPrefix("com.apple.CoreSimulator.SimDeviceType.iPhone") {
+            return "iOS"
+        }
+        preconditionFailure("Unknown prefix \(rawValue)")
+    }
 }
 struct DeviceTypeShortName: Decodable, Hashable {
     let rawValue: String
@@ -122,6 +128,16 @@ struct DeviceTypeMapper {
     subscript(name: DeviceTypeShortName) -> DeviceTypeIdentifier {
         return maps[name]!
     }
+    subscript(any: String) -> DeviceTypeIdentifier {
+        if let identifier = maps.values.first(where: {$0.rawValue == any}) {
+            return identifier
+        }
+        //try name
+        return self[DeviceTypeShortName(any)]
+    }
+    var allIdentifiers: [DeviceTypeIdentifier] {
+        Array(maps.values)
+    }
 }
 
 struct RuntimeIdentifier: Decodable, Hashable {
@@ -132,6 +148,13 @@ struct RuntimeIdentifier: Decodable, Hashable {
     }
     init(_ rawValue: String) {
         self.rawValue = rawValue
+    }
+    var family: Substring {
+        let stripped = rawValue.replacingOccurrences(of: "com.apple.CoreSimulator.SimRuntime.", with: "")
+        guard let beforeDash = stripped.split(separator: "-").first else {
+            preconditionFailure("Can't find runtime family of \(rawValue)")
+        }
+        return beforeDash
     }
 }
 struct RuntimeShortName: Decodable, Hashable {
@@ -181,6 +204,20 @@ struct RuntimeMapper {
         let candidates = maps.keys.filter({$0.rawValue.hasPrefix(family)})
         let bestShortName = candidates.max(by: {$0.rawValue < $1.rawValue})!
         return self[bestShortName]
+    }
+    
+    subscript(argument: String?, deviceType: DeviceTypeIdentifier) -> RuntimeIdentifier {
+        guard let argument = argument else { return best(for: deviceType.family)}
+        if let identifier = maps[RuntimeShortName(argument)] {
+            return identifier
+        }
+        let proposedIdentifier = RuntimeIdentifier(argument)
+        precondition(maps.values.contains(proposedIdentifier))
+        return proposedIdentifier
+    }
+    
+    var allIdentifiers: [RuntimeIdentifier] {
+        Array(maps.values)
     }
 }
 
