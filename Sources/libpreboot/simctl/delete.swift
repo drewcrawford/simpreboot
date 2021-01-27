@@ -17,6 +17,7 @@
 
 extension Simctl {
     func delete(deviceIdentifier: DeviceIdentifier) throws {
+        logger.info("Deleting \(deviceIdentifier.rawValue)")
         let _ = try execute(arguments: ["delete",deviceIdentifier.rawValue])
     }
     

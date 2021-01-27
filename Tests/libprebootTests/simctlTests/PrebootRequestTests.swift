@@ -22,4 +22,28 @@ final class PrebootRequestTests: XCTestCase {
         let args = request.recommendedXcodeArgs
         XCTAssertEqual(args, "-parallelize-tests-among-destinations -destination 'id=identifier1' -destination 'id=identifier2'")
     }
+    
+    func testRunRequest() throws {
+        let identifier = DeviceTypeIdentifier("com.apple.CoreSimulator.SimDeviceType.iPhone-12")
+        let runtime = RuntimeIdentifier("com.apple.CoreSimulator.SimRuntime.iOS-14-3")
+        let request = PrebootRequest(count: 3, deviceType: identifier, runtime: runtime)
+        
+        let simctl = try Simctl()
+        //cleanup
+        logger.info("Pre cleanup")
+        try simctl.deleteAll(named: "simpreboot")
+        
+        let priorList = try simctl.list()
+        logger.info("Run request")
+        let createRequest = try request.run(simctl: simctl, deviceMapper: priorList.deviceMapper)
+        XCTAssertEqual(createRequest.devices.count, 3)
+        let postRequest = try simctl.list()
+        for item in createRequest.devices {
+            let device = try XCTUnwrap(postRequest.deviceMapper[item])
+            XCTAssertEqual(device.state, .booted)
+        }
+        //clean up
+        logger.info("Cleaning up...")
+        try simctl.deleteAll(named: "simpreboot")
+    }
 }

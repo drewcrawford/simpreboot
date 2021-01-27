@@ -19,6 +19,7 @@
 
 extension Simctl {
     func create(name: String, deviceType: DeviceTypeIdentifier, runtimeIdentifier: RuntimeIdentifier) throws -> DeviceIdentifier {
+        logger.info("Creating \(name) \(deviceType.rawValue) \(runtimeIdentifier.rawValue)")
         let result = try execute(arguments: ["create",name,deviceType.rawValue, runtimeIdentifier.rawValue])
         return DeviceIdentifier(result!.trimmingCharacters(in: .whitespacesAndNewlines))
     }

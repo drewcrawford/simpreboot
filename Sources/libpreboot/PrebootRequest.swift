@@ -23,7 +23,18 @@ struct PrebootRequest {
     let count: Int
     let deviceType: DeviceTypeIdentifier
     let runtime: RuntimeIdentifier
+    
+    /**Run the entire request, creating and booting the specified devices.
+     - parameter simctl: Which simctl to use for future commands
+     - parameter listMappers: Result of simctl list from prior call(s).*/
+    func run(simctl: Simctl, deviceMapper: DeviceMapper) throws -> PrebootRequestCreated {
+        let createRequest = try simctl.createIfNeeded(request: self, deviceMapper: deviceMapper)
+        try simctl.bootIfNeeded(request: createRequest, deviceMapper: deviceMapper)
+        return createRequest
+    }
 }
+
+
 
 /**
  Device(s) we may need to boot
