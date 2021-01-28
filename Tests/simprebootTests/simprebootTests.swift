@@ -43,7 +43,7 @@ final class simprebootTests: XCTestCase {
         
         let output = try exec(arguments: ["version"])
 
-        XCTAssertEqual(output, "simpreboot © 2021 DrewCrawfordApps LLC\nvUNSPECIFIED-DEBUG\n")
+        XCTAssertEqual(output, "simpreboot © 2021 DrewCrawfordApps LLC\nUNSPECIFIED-DEBUG\n")
     }
     
     func testVerisonQuiet() throws {

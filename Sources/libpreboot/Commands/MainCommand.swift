@@ -26,7 +26,10 @@ public struct MainCommand: ParsableCommand {
 }
 
 struct CommonOptions: ParsableArguments {
-    @Flag(name:[.long], help:"Avoid unnecessary prints")
+    @Flag(name:[.long], help:ArgumentHelp("Avoid unnecessary prints, useful for machine-readable workflows.", discussion: """
+    This option silences all unnecessary prints, and often reformats output into a machine-readable form.
+
+    """))
     var quiet: Bool = false
     
     func setAppropriateLogLevel() {
