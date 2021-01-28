@@ -28,9 +28,6 @@ struct Version: ParsableCommand {
         }
         
         var vString: String = ""
-        if !commonOptions.quiet {
-            vString.append("v")
-        }
         vString.append(versionString)
         #if DEBUG
         vString.append("-DEBUG")
